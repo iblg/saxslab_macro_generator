@@ -1,6 +1,6 @@
 import os
 
-class sample_for_macro:
+class Sample_For_Macro:
     def __init__(self,
                  filepath,
                  name,
@@ -8,8 +8,10 @@ class sample_for_macro:
                  loc = None,
                  pos = None,
                  thickness = None,
-                 blankloc = (0,0),
-                 capscan = False,
+                 blankloc = None,
+                 blankpos = None,
+                 capscan_y = False,
+                 capscan_z = False,
                  transmission_measure = True,
                  align_beamstop = False):
         """
@@ -43,8 +45,8 @@ class sample_for_macro:
         self.configs = self.get_configs(configs)
         self.thickness = thickness
         self.configs = configs
-        self.blankpos = blankpos
         self.align_beamstop = align_beamstop
+
 
         
         if loc: #if pos is provided
@@ -54,7 +56,15 @@ class sample_for_macro:
         else:
             print('Please provide a loc or a pos argument for sample {}'.format(self.name))
 
-        self.capscan = capscan
+        if blankloc: #if blankloc is provided (i.e., in mm units)
+            self.blankloc = blankloc
+        elif blankpos: #if blankpos is provided (i.e., in AM-yy,zz units)
+            self.blankloc = self.get_loc(blankpos)
+        else:
+            print('You did not provide a blank location in mm coordinates. Please provide a blank location.')
+
+        self.capscan_y = capscan_y
+        self.capscan_z = capscan_z
         self.transmission_measure = transmission_measure
         return
 
@@ -66,17 +76,27 @@ class sample_for_macro:
             file.write('sample00 = \"{}\" \n'.format(self.name))
             file.write('thickness00 = {}\n'.format(self.thickness))
 
-            if self.capscan:
-                file.write('capalign ysam 3 40 1\n')
+            if self.blankloc:
+                file.write('mv ysam {}\n'.format(self.blankloc[0]))
+                file.write('mv zsam {}\n'.format(self.blankloc[1]))
+                file.write('blankpos_def\n'.format(self.blankloc[1]))
+
+            file.write('mv ysam {}\n'.format(self.loc[0]))
+            file.write('mv zsam {}\n'.format(self.loc[1]))
+            if self.capscan_y:
+                file.write('capalign ysam {} {}\n'.format(self.capscan_y[0], self.capscan_y[1]))
+
+            if self.capscan_z:
+                file.write('capalign zsam {} {}\n'.format(self.capscan_z[0], self.capscan_z[1]))
+
 
             #align
             for config, time in self.configs.items():
-                # file.write('mv ysam {}\n'.format(self.blankpos[0]))
-                # file.write('mv zsam {}\n'.format(self.blankpos[1]))
                 file.write('current_config = {}\n'.format(config))
                 file.write('conf_ugo current_config\n')
 
                 if self.align_beamstop:
+                    file.write('mv_blankpos\n')
                     file.write('mv beam2bstop\n')
 
                 file.write('mv ysam {}\n'.format(self.loc[0]))
@@ -95,12 +115,7 @@ class sample_for_macro:
         return
     
     def get_loc(self, pos):
-        loc = [0,0]
-
-        loc[0] = -8. * pos[1] + 48.
-        loc[1] = 8. * pos[0] - 24.
-
-        return loc
+        return [-8. * pos[1] + 48., 8. * pos[0] - 24]
 
     def get_configs(self, configs):
         allowed = ['1', '2', '3', '4', '21', '22', '23', '24']
@@ -124,6 +139,3 @@ class sample_for_macro:
                 print('Measurement time must be given as float or int!')
 
         return configs
-
-if __name__ == '__main__':
-    main()
