@@ -2,7 +2,7 @@ import os
 
 class Sample_For_Macro:
     def __init__(self,
-                 filepath,
+                 # filepath,
                  name,
                  configs,
                  loc = None,
