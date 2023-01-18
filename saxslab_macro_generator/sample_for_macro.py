@@ -2,7 +2,6 @@ import os
 
 class Sample_For_Macro:
     def __init__(self,
-                 # filepath,
                  name,
                  configs,
                  loc = None,
@@ -15,8 +14,6 @@ class Sample_For_Macro:
                  transmission_measure = True,
                  align_beamstop = True):
         """
-        filepath : str
-            The path to the macro file that you will write this sample to. Before running this code, you must create an empty .mac file at the filepath.
         name : str
             The name of the sample. This is the name that will be recorded in the macro and the name of the data eventually measured.
         configs : dict

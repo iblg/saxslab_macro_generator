@@ -1,0 +1,138 @@
+
+ 
+ 
+ 
+ 
+############################################################
+#Sample: kapton
+#Sample location: [-32.0, 8.0] 
+sample00 = "kapton" 
+thickness00 = None
+mv ysam -40.0
+mv zsam 8.0
+blankpos_def
+current_config = 21
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -32.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 400 
+current_config = 22
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -32.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 1000 
+current_config = 24
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -32.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 2000 
+
+ 
+ 
+ 
+ 
+############################################################
+#Sample: dmcha03
+#Sample location: [-16.0, 8.0] 
+sample00 = "dmcha03" 
+thickness00 = None
+mv ysam -40.0
+mv zsam 8.0
+blankpos_def
+current_config = 21
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -16.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 400 
+current_config = 22
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -16.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 1000 
+current_config = 24
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -16.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 2000 
+
+ 
+ 
+ 
+ 
+############################################################
+#Sample: dmcha02
+#Sample location: [-24.0, 8.0] 
+sample00 = "dmcha02" 
+thickness00 = None
+mv ysam -40.0
+mv zsam 8.0
+blankpos_def
+current_config = 21
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -24.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 400 
+current_config = 22
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -24.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 1000 
+current_config = 24
+conf_ugo current_config
+mv_blankpos
+mv_beam2bstop
+mv ysam -24.0
+mv zsam 8.0
+capalign ysam 2 30
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 2000 
