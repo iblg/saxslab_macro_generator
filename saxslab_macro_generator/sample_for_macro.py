@@ -24,16 +24,27 @@ class Sample_For_Macro:
         loc : tuple
             loc is the position of the sample, in mm. If both loc and pos are provided, loc is used.
         pos : tuple
-            pos is the position of the sample in the SAXSLab ambient holder's coordinate units. If both loc and pos are provided, loc is used.
+            pos is the position of the sample in the SAXSLab ambient holder's coordinate units (e.g., AM-03,05). If both loc and pos are provided, loc is used.
         thickness : float
             The thickness of the sample in centimeters.
-
             If thickness is provided, then the SAXSLab instrument will automatically correct for the sample thickness.
             However, this is not advisable for samples where a background will be taken.
         blankloc : tuple
             The position of the blank hole that is used for background subtraction and beamstop alignment, in mm.
-        capscan : boolean
-            Whether to align the sample using the built-in capillary alignment tools. Default is false.
+        blankpos : tuple
+            The position of the blank hole that is used for background subtraction and beamstop alignment, in the ambient holder's coordinates (e.g., AM-03-05).
+
+            If both blankloc and blankpos are provided, blankloc is used
+        capscan_y : tuple
+            Default is false. If capscan_y is provided, it should be a tuple. This will align the capillary in the y (horizontal) direction.
+
+            The first number must be a positive int (best is 2) and is the half-width of the scan in mm.
+            The second number in the tuple must also be a positive int (20-30 is common) and is the number of points to scan in that length range.
+        capscan_z : tuple
+            Default is false. If capscan_z is provided, it should be a tuple. This will align the capillary in the z (vertical) direction.
+
+            The first number must be a positive int (best is 2) and is the half-width of the scan in mm.
+            The second number in the tuple must also be a positive int (20-30 is common) and is the number of points to scan in that length range.
         transmission_measure : boolean
             If true, the instrument will automatically take and subtract a dark frame and air scattering.
         align_beamstop : boolean
@@ -46,9 +57,26 @@ class Sample_For_Macro:
         self.thickness = thickness
         self.configs = configs
         self.align_beamstop = align_beamstop
+        self.capscan_y = capscan_y
+        self.capscan_z = capscan_z
+        self.transmission_measure = transmission_measure
 
+        if capscan_y:
+            if isinstance(capscan_y, tuple):
+                pass
+            else:
+                print('capscan_y must be a tuple for sample {}'.format(name))
 
-        
+        if capscan_z:
+            if isinstance(capscan_z, tuple):
+                if (isinstance(capscan_z[0], int)) or (isinstance(capscan_z[1], int)):
+                    pass
+                else:
+                    print('In sample {}. Both numbers provided to capscan_z must be positive ints!\n'.format(name))
+
+            else:
+                print('capscan_z must be a tuple for sample {}'.format(name))
+
         if loc: #if pos is provided
             self.loc = loc
         elif pos:
@@ -63,9 +91,7 @@ class Sample_For_Macro:
         else:
             print('You did not provide a blank location in mm coordinates. Please provide a blank location.')
 
-        self.capscan_y = capscan_y
-        self.capscan_z = capscan_z
-        self.transmission_measure = transmission_measure
+
         return
 
     def write_to_file(self, filename):
@@ -81,26 +107,24 @@ class Sample_For_Macro:
                 file.write('mv zsam {}\n'.format(self.blankloc[1]))
                 file.write('blankpos_def\n'.format(self.blankloc[1]))
 
-            file.write('mv ysam {}\n'.format(self.loc[0]))
-            file.write('mv zsam {}\n'.format(self.loc[1]))
-            if self.capscan_y:
-                file.write('capalign ysam {} {}\n'.format(self.capscan_y[0], self.capscan_y[1]))
-
-            if self.capscan_z:
-                file.write('capalign zsam {} {}\n'.format(self.capscan_z[0], self.capscan_z[1]))
-
 
             #align
             for config, time in self.configs.items():
                 file.write('current_config = {}\n'.format(config))
                 file.write('conf_ugo current_config\n')
 
+
                 if self.align_beamstop:
                     file.write('mv_blankpos\n')
-                    file.write('mv beam2bstop\n')
+                    file.write('mv_beam2bstop\n')
 
                 file.write('mv ysam {}\n'.format(self.loc[0]))
                 file.write('mv zsam {}\n'.format(self.loc[1]))
+                if self.capscan_y:
+                    file.write('capalign ysam {} {}\n'.format(self.capscan_y[0], self.capscan_y[1]))
+
+                if self.capscan_z:
+                    file.write('capalign zsam {} {}\n'.format(self.capscan_z[0], self.capscan_z[1]))
 
                 if self.thickness is not None:
                     file.write('SAMPLE_THICKNESS = thickness00\n')  # always in cm

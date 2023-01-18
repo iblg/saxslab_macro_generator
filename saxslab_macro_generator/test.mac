@@ -1,0 +1,24 @@
+
+ 
+ 
+ 
+ 
+############################################################
+#Sample: kapton
+#Sample location: [-32.0, 0.0] 
+sample00 = "kapton" 
+thickness00 = None
+mv ysam 0.0
+mv zsam 0.0
+blankpos_def
+mv ysam -32.0
+mv zsam 0.0
+capalign ysam 2.1 30
+current_config = 21
+conf_ugo current_config
+mv ysam -32.0
+mv zsam 0.0
+transmission_measure
+SAMPLE_DESCRIPTION = sprintf("Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i", sample00, current_config, T, time())
+use_bsmask
+saxsmeasure 60 
