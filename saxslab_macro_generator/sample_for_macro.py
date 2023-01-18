@@ -13,7 +13,7 @@ class Sample_For_Macro:
                  capscan_y = False,
                  capscan_z = False,
                  transmission_measure = True,
-                 align_beamstop = False):
+                 align_beamstop = True):
         """
         filepath : str
             The path to the macro file that you will write this sample to. Before running this code, you must create an empty .mac file at the filepath.
