@@ -1,4 +1,4 @@
-from sample_for_macro import Sample_For_Macro as SFM
+from .sample_for_macro import Sample_For_Macro as SFM
 import os
 
 class Measurement:
