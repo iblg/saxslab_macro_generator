@@ -1,18 +1,21 @@
 import os
 
+
 class Sample_For_Macro:
     def __init__(self,
                  name,
                  configs,
-                 loc = None,
-                 pos = None,
-                 thickness = None,
-                 blankloc = None,
-                 blankpos = None,
-                 capscan_y = False,
-                 capscan_z = False,
-                 transmission_measure = True,
-                 align_beamstop = True):
+                 loc=None,
+                 pos=None,
+                 thickness=None,
+                 blankloc=None,
+                 blankpos=None,
+                 capscan_y=False,
+                 capscan_z=False,
+                 transmission_measure=True,
+                 align_beamstop="at_blank",
+                 time_delay_before_sample=None,
+                 time_delay_after_sample=None):
         """
         name : str
             The name of the sample. This is the name that will be recorded in the macro and the name of the data eventually measured.
@@ -44,12 +47,12 @@ class Sample_For_Macro:
             The second number in the tuple must also be a positive int (20-30 is common) and is the number of points to scan in that length range.
         transmission_measure : boolean
             If true, the instrument will automatically take and subtract a dark frame and air scattering.
-        align_beamstop : boolean
+        align_beamstop : str, default "at_blank"
             If true, the instrument will automatically align the beamstop before measuring.
         """
         self.name = name
 
-        #verify that configs are correct:
+        # verify that configs are correct:
         self.configs = self.get_configs(configs)
         self.thickness = thickness
         self.configs = configs
@@ -57,6 +60,8 @@ class Sample_For_Macro:
         self.capscan_y = capscan_y
         self.capscan_z = capscan_z
         self.transmission_measure = transmission_measure
+        self.time_delay_after_sample = time_delay_after_sample
+        self.time_delay_before_sample = time_delay_before_sample
 
         if capscan_y:
             if isinstance(capscan_y, tuple):
@@ -74,20 +79,19 @@ class Sample_For_Macro:
             else:
                 print('capscan_z must be a tuple for sample {}'.format(name))
 
-        if loc: #if pos is provided
+        if loc:  # if pos is provided
             self.loc = loc
         elif pos:
             self.loc = self.get_loc(pos)
         else:
             print('Please provide a loc or a pos argument for sample {}'.format(self.name))
 
-        if blankloc: #if blankloc is provided (i.e., in mm units)
+        if blankloc:  # if blankloc is provided (i.e., in mm units)
             self.blankloc = blankloc
-        elif blankpos: #if blankpos is provided (i.e., in AM-yy,zz units)
+        elif blankpos:  # if blankpos is provided (i.e., in AM-yy,zz units)
             self.blankloc = self.get_loc(blankpos)
         else:
             print('You did not provide a blank location in mm coordinates. Please provide a blank location.')
-
 
         return
 
@@ -96,6 +100,8 @@ class Sample_For_Macro:
             file.write('\n \n \n \n \n############################################################\n')
             file.write('#Sample: {}\n'.format(self.name))
             file.write('#Sample location: {} \n'.format(self.loc))
+            if self.time_delay_before_sample:
+                file.write('do_sleep({})\n'.format(self.time_delay_before_sample))
             file.write('sample00 = \"{}\" \n'.format(self.name))
             file.write('thickness00 = {}\n'.format(self.thickness))
 
@@ -104,16 +110,21 @@ class Sample_For_Macro:
                 file.write('mv zsam {}\n'.format(self.blankloc[1]))
                 file.write('blankpos_def\n'.format(self.blankloc[1]))
 
-
-            #align
+            # align
             for config, time in self.configs.items():
                 file.write('current_config = {}\n'.format(config))
                 file.write('conf_ugo current_config\n')
 
-
-                if self.align_beamstop:
+                if self.align_beamstop == 'at_blank':
                     file.write('mv_blankpos\n')
                     file.write('mv_beam2bstop\n')
+                elif self.align_beamstop == 'at_sample':
+                    file.write('mv ysam {}\n'.format(self.loc[0]))
+                    file.write('mv zsam {}\n'.format(self.loc[1]))
+                    file.write('mv_beam2bstop\n')
+                else:
+                    print('No beamstop provision given for sample {}\n'.format(self.name))
+                    print('Detector may get burned.')
 
                 file.write('mv ysam {}\n'.format(self.loc[0]))
                 file.write('mv zsam {}\n'.format(self.loc[1]))
@@ -129,12 +140,15 @@ class Sample_For_Macro:
                 if self.transmission_measure is True:
                     file.write('transmission_measure\n')
 
-                file.write('SAMPLE_DESCRIPTION = sprintf(\"Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i\", sample00, current_config, T, time())\n')
+                file.write(
+                    'SAMPLE_DESCRIPTION = sprintf(\"Sample: %s, Configuration = %i, Temp = %2.1f, Time=%i\", sample00, current_config, T, time())\n')
                 file.write('use_bsmask\n')
                 file.write('saxsmeasure {} \n'.format(time))
 
+            if self.time_delay_after_sample:
+                file.write('do_sleep({})\n'.format(self.time_delay_after_sample))
         return
-    
+
     def get_loc(self, pos):
         return [-8. * pos[1] + 48., 8. * pos[0] - 24]
 

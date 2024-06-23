@@ -2,16 +2,17 @@ from .sample_for_macro import Sample_For_Macro as SFM
 import os
 
 class Measurement:
-    def __init__(self, filename, *samples):
+    def __init__(self, filename, *samples, time_delay_after_samples=None):
     #     try:
     #         os.remove(filename)  # delete it
     #     except FileNotFoundError as fe:
     #         print(fe)
         with open(filename, 'w') as fp:
-            pass
+            # pass
 
-        for s in samples:
-            s.write_to_file(filename)
+            for s in samples:
+                s.write_to_file(filename)
+
 
 
         return
